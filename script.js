@@ -62,3 +62,9 @@ function bunnyReply(type){
  bunny.classList.add("happy-hop");
 }
 document.querySelectorAll("[data-prompt]").forEach(btn=>btn.addEventListener("click",()=>bunnyReply(btn.dataset.prompt)));
+
+$("readyBtn").addEventListener("click",()=>{
+ $("welcomePage").hidden=true;
+ $("studyPage").hidden=false;
+ window.scrollTo({top:0,behavior:"instant"});
+});
