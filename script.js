@@ -29,19 +29,33 @@ $("start").onclick=()=>{if(running){tick();if(running)stop()}else startTimer();r
 $("reset").onclick=()=>{stop();focus=true;remaining=1500;render()};
 render();
 
+
 const buddyResponse=$("buddyResponse");
-const motivation=["You don't have to finish everything today. Just start with one tiny task, cutie! 💗","Your future self is going to be so proud of this little study session. 🌷","A little progress is still progress. Your bunny is rooting for you! 🐰","One page, one problem, one carrot at a time! 🥕"];
-function buddyReply(type,topic=""){
- const clean=topic.trim().slice(0,140);
- const label=clean||"your next study task";
- let reply="";
- if(type==="motivate")reply=motivation[Math.floor(Math.random()*motivation.length)];
- else if(type==="plan")reply="Let's tackle "+label+"! 🎀 ① Spend 5 minutes choosing one small goal. ② Focus for 25 minutes on that goal. ③ Take your 5-minute treat break. ④ Check what you learned and repeat. ♡";
- else if(type==="break")reply="Treat time! 🍓 Stretch your shoulders, sip some water, look away from the screen, and give your bunny a little smile. ♡";
- else if(type==="progress")reply="You've finished "+data.sessions+" focus sessions, studied "+data.minutes+" minutes, and earned "+data.carrots+" carrots! 🥕 Every little win counts.";
- else if(/stress|overwhelm|anxious|tired|can't focus|cant focus/i.test(clean))reply="Sounds like a lot, sweetie. 💗 Try writing down just one tiny next step for "+label+". A short rest is okay too. You don't need to do everything at once.";
- else reply="Let's make "+label+" feel manageable! 🌸 Write down the first question or section, focus on it for 25 minutes, then explain what you learned in 2 sentences. You've got this! ♡";
- buddyResponse.textContent=reply;
+const AI_ENDPOINT=""; // After deploying worker, paste its HTTPS URL ending in /chat here.
+let history=[];
+let busy=false;
+async function askBuddy(message){
+ if(busy)return;
+ if(!AI_ENDPOINT){
+  buddyResponse.textContent="🐰 My AI brain needs connecting! Deploy the Cloudflare Worker and set AI_ENDPOINT in script.js. See README for setup.";
+  return;
+ }
+ busy=true;
+ const button=$("buddyForm").querySelector('button[type="submit"]');
+ button.disabled=true;
+ buddyResponse.textContent="🐰 Bunny Buddy is thinking... ♡";
+ try{
+  const response=await fetch(AI_ENDPOINT,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({message,history})});
+  const result=await response.json();
+  if(!response.ok)throw new Error(result.error||"Couldn't get an answer.");
+  buddyResponse.textContent=result.answer;
+  history.push({role:"user",text:message},{role:"model",text:result.answer});
+  history=history.slice(-8);
+ }catch(error){buddyResponse.textContent="💗 "+(error.message||"Something went wrong. Try again.")}
+ finally{busy=false;button.disabled=false}
 }
-document.querySelectorAll("[data-prompt]").forEach(btn=>btn.addEventListener("click",()=>buddyReply(btn.dataset.prompt,$("buddyInput").value)));
-$("buddyForm").addEventListener("submit",event=>{event.preventDefault();buddyReply("topic",$("buddyInput").value)});
+document.querySelectorAll("[data-prompt]").forEach(btn=>btn.addEventListener("click",()=>{
+ const prompts={motivate:"Give me some motivation to study right now.",plan:"Make a simple 25-minute study plan for "+($("buddyInput").value.trim()||"my next study session")+".",break:"Suggest a relaxing 5-minute study break.",progress:"I completed "+data.sessions+" focus sessions, studied "+data.minutes+" minutes, and earned "+data.carrots+" carrots. Celebrate my progress and suggest my next step."};
+ void askBuddy(prompts[btn.dataset.prompt]);
+}));
+$("buddyForm").addEventListener("submit",event=>{event.preventDefault();const message=$("buddyInput").value.trim();if(message)void askBuddy(message)});
