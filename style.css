@@ -50,3 +50,28 @@ body{background:radial-gradient(circle at 12% 8%,#ffc9e0 0,transparent 34%),radi
 .welcome-ready{padding:16px 34px;border-radius:24px;font-size:17px}
 @media(max-width:540px){.welcome-card{padding:23px 16px 27px}.welcome-rules{grid-template-columns:1fr}.welcome-bunny-area{height:235px}.welcome-sparkles{letter-spacing:9px}}
 @media(prefers-reduced-motion:reduce){.welcome-bunny-area .bunny,.welcome-shadow,.welcome-heart{animation:none}}
+
+/* StudyBunny's living moods */
+.bunny-mood-label{font-size:14px;font-weight:900;color:#d16a9d;margin:0 0 8px}
+.bunny-mood-decoration{position:absolute;top:18px;left:22%;font-size:30px;z-index:4;pointer-events:none;animation:moodFloat 2.3s ease-in-out infinite}
+@keyframes moodFloat{50%{transform:translateY(-12px) rotate(7deg)}}
+#bunny.mood-sleepy{animation:sleepBreath 3.5s ease-in-out infinite}
+#bunny.mood-sleepy .eyes i{height:4px;width:17px;border-radius:0 0 20px 20px;transform:translateX(-3px) translateY(7px)}
+#bunny.mood-sleepy .ears .ear:first-child{transform:rotate(-24deg)}
+#bunny.mood-sleepy .ears .ear:last-child{transform:rotate(24deg)}
+@keyframes sleepBreath{50%{transform:translateY(4px) scale(1.02,.98)}}
+#bunny.mood-studying{animation:studyNod 2s ease-in-out infinite}
+#bunny.mood-studying .head{animation:studyTilt 2s ease-in-out infinite}
+@keyframes studyNod{50%{transform:translateY(-3px)}}
+@keyframes studyTilt{50%{transform:rotate(-5deg)}}
+#bunny.mood-break{animation:relaxSway 3s ease-in-out infinite}
+@keyframes relaxSway{25%{transform:rotate(-4deg)}75%{transform:rotate(4deg)}}
+#bunny.mood-celebrate{animation:carrotJump .65s ease-in-out 3}
+#bunny.mood-celebrate .ears{animation:earWiggle .3s ease-in-out 6}
+@keyframes carrotJump{0%,100%{transform:translateY(0) scale(1,.95)}45%{transform:translateY(-46px) scale(.96,1.06)}}
+@keyframes earWiggle{50%{transform:rotate(8deg)}}
+.pet:has(.mood-celebrate) .float-heart{font-size:60px;animation:moodFloat .5s infinite}
+@media(prefers-reduced-motion:reduce){
+ #bunny.mood-sleepy,#bunny.mood-studying,#bunny.mood-break,#bunny.mood-celebrate,
+ #bunny.mood-studying .head,#bunny.mood-celebrate .ears,.bunny-mood-decoration{animation:none}
+}
