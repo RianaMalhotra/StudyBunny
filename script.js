@@ -51,7 +51,7 @@ function finish(){
  startTimer();
 }
 function tick(){remaining=Math.max(0,Math.ceil((endAt-Date.now())/1000));if(remaining===0)finish();else render()}
-$("start").onclick=()=>{enableSparkle();if(running){tick();if(running)stop()}else startTimer();render()};
+$("start").onclick=()=>{enableSparkle();if(running){tick();if(running)stop()}else{playSparkle();startTimer()}render()};
 $("reset").onclick=()=>{stop();focus=true;remaining=1500;render()};
 render();
 
