@@ -18,14 +18,40 @@ function render(){
 }
 function stop(){running=false;clearInterval(tickId);tickId=null}
 function startTimer(){running=true;endAt=Date.now()+remaining*1000;tickId=setInterval(tick,250);render()}
+let sparkleAudio;
+function enableSparkle(){
+  const AudioClass = window.AudioContext || window.webkitAudioContext;
+  if (!AudioClass) return;
+  sparkleAudio ||= new AudioClass();
+  if (sparkleAudio.state === 'suspended') sparkleAudio.resume();
+}
+function playSparkle(){
+  if (!sparkleAudio || sparkleAudio.state !== 'running') return;
+  const now = sparkleAudio.currentTime;
+  [784,1046.5,1318.5,1760].forEach((frequency,i)=>{
+    const osc=sparkleAudio.createOscillator();
+    const volume=sparkleAudio.createGain();
+    const start=now+i*0.12;
+    osc.type='sine';
+    osc.frequency.setValueAtTime(frequency,start);
+    volume.gain.setValueAtTime(0.0001,start);
+    volume.gain.exponentialRampToValueAtTime(0.08,start+0.02);
+    volume.gain.exponentialRampToValueAtTime(0.0001,start+0.45);
+    osc.connect(volume);
+    volume.connect(sparkleAudio.destination);
+    osc.start(start);
+    osc.stop(start+0.46);
+  });
+}
 function finish(){
+ playSparkle();
  stop();
  if(focus){data.sessions++;data.carrots+=2;data.minutes+=25;save();$("message").textContent="You deserve a treat! +2 carrots 🥕💗";focus=false;remaining=300}
  else{$("message").textContent="All refreshed! Your bunny is cheering you on 🌸";focus=true;remaining=1500}
  startTimer();
 }
 function tick(){remaining=Math.max(0,Math.ceil((endAt-Date.now())/1000));if(remaining===0)finish();else render()}
-$("start").onclick=()=>{if(running){tick();if(running)stop()}else startTimer();render()};
+$("start").onclick=()=>{enableSparkle();if(running){tick();if(running)stop()}else startTimer();render()};
 $("reset").onclick=()=>{stop();focus=true;remaining=1500;render()};
 render();
 
@@ -63,7 +89,7 @@ function bunnyReply(type){
 }
 document.querySelectorAll("[data-prompt]").forEach(btn=>btn.addEventListener("click",()=>bunnyReply(btn.dataset.prompt)));
 
-$("readyBtn").addEventListener("click",()=>{
+$("readyBtn").addEventListener("click",()=>{enableSparkle();
  $("welcomePage").hidden=true;
  $("studyPage").hidden=false;
  window.scrollTo({top:0,behavior:"instant"});
