@@ -3,6 +3,44 @@ const $=id=>document.getElementById(id);
 let data;
 try{data=JSON.parse(localStorage.getItem(KEY))||{sessions:0,carrots:0,minutes:0}}catch{data={sessions:0,carrots:0,minutes:0}}
 let focus=true,running=false,remaining=1500,endAt=0,tickId=null;
+
+let mood="awake", celebrationTimeout=null, idleTimeout=null;
+function setBunnyMood(next){
+ mood=next;
+ const bunny=$("bunny");
+ bunny.classList.remove("mood-awake","mood-sleepy","mood-studying","mood-break","mood-celebrate","happy-hop");
+ bunny.classList.add("mood-"+next);
+ const moods={
+  awake:["💗 Bunny is ready whenever you are!","💕"],
+  sleepy:["💤 Shhh… bunny is taking a tiny nap.","💤"],
+  studying:["📚 Bunny is studying with you!","📖"],
+  break:["🍓 Bunny is enjoying a cozy break.","🍓"],
+  celebrate:["🥕 YAY! Bunny is jumping for carrots!","✨🥕✨"]
+ };
+ $("bunnyMoodLabel").textContent=moods[next][0];
+ $("bunnyMoodDecoration").textContent=moods[next][1];
+}
+function refreshBunnyMood(){
+ if(mood==="celebrate")return;
+ setBunnyMood(running?(focus?"studying":"break"):"awake");
+ scheduleBunnyNap();
+}
+function scheduleBunnyNap(){
+ clearTimeout(idleTimeout);
+ if(!running&&mood!=="celebrate"){
+  idleTimeout=setTimeout(()=>{if(!running&&mood!=="celebrate")setBunnyMood("sleepy")},30000);
+ }
+}
+function celebrateCarrots(){
+ clearTimeout(celebrationTimeout);
+ clearTimeout(idleTimeout);
+ setBunnyMood("celebrate");
+ celebrationTimeout=setTimeout(()=>{
+  mood="awake";
+  refreshBunnyMood();
+ },2100);
+}
+
 function save(){localStorage.setItem(KEY,JSON.stringify(data))}
 function render(){
  const tier=Math.floor(data.sessions/3);
@@ -16,8 +54,8 @@ function render(){
  $("mode").textContent=focus?"STUDY":"BREAK";
  $("phaseLabel").textContent=focus?"📖 25 minutes of focus, then a treat ♡":"🍓 You deserve a treat! Enjoy your 5-minute break ♡";
 }
-function stop(){running=false;clearInterval(tickId);tickId=null}
-function startTimer(){running=true;endAt=Date.now()+remaining*1000;tickId=setInterval(tick,250);render()}
+function stop(){running=false;clearInterval(tickId);tickId=null;refreshBunnyMood()}
+function startTimer(){running=true;endAt=Date.now()+remaining*1000;tickId=setInterval(tick,250);refreshBunnyMood();render()}
 let sparkleAudio;
 function enableSparkle(){
   const AudioClass = window.AudioContext || window.webkitAudioContext;
@@ -46,14 +84,15 @@ function playSparkle(){
 function finish(){
  playSparkle();
  stop();
- if(focus){data.sessions++;data.carrots+=2;data.minutes+=25;save();$("message").textContent="You deserve a treat! +2 carrots 🥕💗";focus=false;remaining=300}
+ if(focus){data.sessions++;data.carrots+=2;data.minutes+=25;save();celebrateCarrots();$("message").textContent="You deserve a treat! +2 carrots 🥕💗";focus=false;remaining=300}
  else{$("message").textContent="All refreshed! Your bunny is cheering you on 🌸";focus=true;remaining=1500}
  startTimer();
 }
 function tick(){remaining=Math.max(0,Math.ceil((endAt-Date.now())/1000));if(remaining===0)finish();else render()}
-$("start").onclick=()=>{enableSparkle();if(running){tick();if(running)stop()}else{playSparkle();startTimer()}render()};
-$("reset").onclick=()=>{stop();focus=true;remaining=1500;render()};
+$("start").onclick=()=>{enableSparkle();if(running){tick();if(running)stop()}else{playSparkle();startTimer()}refreshBunnyMood();render()};
+$("reset").onclick=()=>{stop();focus=true;remaining=1500;refreshBunnyMood();render()};
 render();
+refreshBunnyMood();
 
 
 
@@ -86,6 +125,7 @@ function bunnyReply(type){
  bunny.classList.remove("happy-hop");
  void bunny.offsetWidth;
  bunny.classList.add("happy-hop");
+ if(!running){clearTimeout(idleTimeout);setTimeout(()=>{if(!running)refreshBunnyMood()},1400)}
 }
 document.querySelectorAll("[data-prompt]").forEach(btn=>btn.addEventListener("click",()=>bunnyReply(btn.dataset.prompt)));
 
