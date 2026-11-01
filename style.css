@@ -21,3 +21,8 @@ body{background:radial-gradient(circle at 12% 8%,#ffc9e0 0,transparent 34%),radi
 .buddy-response{margin-top:16px;padding:17px 19px;border-radius:20px;background:#fff;border:1px solid #ffd3e5;color:#a45785;font-weight:700;line-height:1.6}
 .buddy .buddy-note{margin-top:12px;font-size:11px}
 @media(max-width:480px){.buddy{padding:18px}.buddy-intro{align-items:flex-start}.buddy-input-row{flex-direction:column}.buddy-input-row button{width:100%}}
+
+/* Bunny hops excitedly when a question is tapped */
+.bunny.happy-hop{animation:happyHop .65s ease-in-out 2}
+@keyframes happyHop{0%,100%{transform:translateY(0) rotate(0)}35%{transform:translateY(-35px) rotate(-5deg)}65%{transform:translateY(-18px) rotate(4deg)}}
+@media(prefers-reduced-motion:reduce){.bunny.happy-hop{animation:none}}
