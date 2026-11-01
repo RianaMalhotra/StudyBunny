@@ -30,32 +30,35 @@ $("reset").onclick=()=>{stop();focus=true;remaining=1500;render()};
 render();
 
 
+
 const buddyResponse=$("buddyResponse");
-const AI_ENDPOINT=""; // After deploying worker, paste its HTTPS URL ending in /chat here.
-let history=[];
-let busy=false;
-async function askBuddy(message){
- if(busy)return;
- if(!AI_ENDPOINT){
-  buddyResponse.textContent="🐰 My AI brain needs connecting! Deploy the Cloudflare Worker and set AI_ENDPOINT in script.js. See README for setup.";
-  return;
- }
- busy=true;
- const button=$("buddyForm").querySelector('button[type="submit"]');
- button.disabled=true;
- buddyResponse.textContent="🐰 Bunny Buddy is thinking... ♡";
- try{
-  const response=await fetch(AI_ENDPOINT,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({message,history})});
-  const result=await response.json();
-  if(!response.ok)throw new Error(result.error||"Couldn't get an answer.");
-  buddyResponse.textContent=result.answer;
-  history.push({role:"user",text:message},{role:"model",text:result.answer});
-  history=history.slice(-8);
- }catch(error){buddyResponse.textContent="💗 "+(error.message||"Something went wrong. Try again.")}
- finally{busy=false;button.disabled=false}
+const bunnyAnswers={
+ motivate:["You've got this, sunshine! Just one tiny step at a time. 🌸","Your bunny believes in you, even on the hard days. 💗","You don't need to be perfect, just keep hopping forward! 🐰","Future you is cheering for every minute you spend trying. 🎀"],
+ plan:["Pick one small goal, study for 25 minutes, then take a 5-minute break. Repeat! 📚","Try this: 5 minutes reviewing notes, 15 minutes practicing, 5 minutes recalling without looking. ✨","Choose your hardest little task first, then reward yourself with a bunny break. 🥕"],
+ break:["Stretch, drink water, and rest your eyes for five minutes! 🍓","Walk around, breathe slowly, and come back refreshed. 🌷","Grab a cozy drink and listen to one favorite song. 💗","Do a tiny dance break! Bunny approves. 🐰"],
+ progress:[],
+ focus:["Put your phone away, choose one task, and press Start focusing. ♡","Try the two-minute rule: promise yourself just two minutes, then keep going if you can. 🌼","Close extra tabs and write one clear goal for this session. 🎀"],
+ stuck:["It's okay to feel stuck. Start with the easiest question to build momentum. 💕","Break the problem into tiny pieces and solve just the first one. 🧩","Explain what you know out loud like you're teaching Bunny Buddy. 🐰"],
+ exam:["Practice questions are your best friend! Test yourself before checking the answers. 📝","Make a tiny formula sheet from memory, then check what you missed. ✨","Study in short rounds and focus extra on mistakes you've made before. 🌷"],
+ celebrate:["You're doing amazing, little superstar! ✨","Bunny is sending you the biggest virtual hug! 🐰💗","Every carrot counts, and so does every effort you make. 🥕"]
+};
+let lastAnswer={};
+function bunnyReply(type){
+ let answers=bunnyAnswers[type];
+ if(type==="progress")answers=[
+ "You've earned "+data.carrots+" carrots and completed "+data.sessions+" sessions. Bunny is proud! 🥕",
+ "Look at you! "+data.minutes+" focused minutes and counting. Keep blooming! 🌸",
+ "Your bunny has "+data.carrots+" carrots thanks to your hard work. So sweet! 💗"
+ ];
+ if(!answers||!answers.length)return;
+ let choices=answers.map((_,i)=>i).filter(i=>i!==lastAnswer[type]);
+ if(!choices.length)choices=answers.map((_,i)=>i);
+ const index=choices[Math.floor(Math.random()*choices.length)];
+ lastAnswer[type]=index;
+ buddyResponse.textContent=answers[index];
+ const bunny=$("bunny");
+ bunny.classList.remove("happy-hop");
+ void bunny.offsetWidth;
+ bunny.classList.add("happy-hop");
 }
-document.querySelectorAll("[data-prompt]").forEach(btn=>btn.addEventListener("click",()=>{
- const prompts={motivate:"Give me some motivation to study right now.",plan:"Make a simple 25-minute study plan for "+($("buddyInput").value.trim()||"my next study session")+".",break:"Suggest a relaxing 5-minute study break.",progress:"I completed "+data.sessions+" focus sessions, studied "+data.minutes+" minutes, and earned "+data.carrots+" carrots. Celebrate my progress and suggest my next step."};
- void askBuddy(prompts[btn.dataset.prompt]);
-}));
-$("buddyForm").addEventListener("submit",event=>{event.preventDefault();const message=$("buddyInput").value.trim();if(message)void askBuddy(message)});
+document.querySelectorAll("[data-prompt]").forEach(btn=>btn.addEventListener("click",()=>bunnyReply(btn.dataset.prompt)));
