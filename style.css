@@ -26,3 +26,27 @@ body{background:radial-gradient(circle at 12% 8%,#ffc9e0 0,transparent 34%),radi
 .bunny.happy-hop{animation:happyHop .65s ease-in-out 2}
 @keyframes happyHop{0%,100%{transform:translateY(0) rotate(0)}35%{transform:translateY(-35px) rotate(-5deg)}65%{transform:translateY(-18px) rotate(4deg)}}
 @media(prefers-reduced-motion:reduce){.bunny.happy-hop{animation:none}}
+
+/* Animated first-visit welcome page */
+.welcome-page{min-height:100vh;display:grid;place-items:center;padding:28px 15px 45px}
+.welcome-card{width:min(650px,100%);text-align:center;background:linear-gradient(155deg,#fff8fc,#ffdeed);padding:32px 38px 36px;position:relative;overflow:hidden}
+.welcome-sparkles{color:#ef8bb8;letter-spacing:18px;font-size:20px}
+.welcome-eyebrow{font-size:12px;letter-spacing:1.5px;color:#cf79a4;font-weight:900;margin:15px 0 3px}
+.welcome-card h1{font-size:clamp(29px,5vw,42px);line-height:1.2;margin:8px 0 10px}
+.welcome-subtitle{max-width:450px;margin:0 auto;color:#9c6385;line-height:1.6;font-weight:700}
+.welcome-bunny-area{height:245px;position:relative;display:flex;align-items:center;justify-content:center}
+.welcome-bunny-area .bunny{animation:welcomeHop 1.25s ease-in-out infinite;z-index:2}
+.welcome-heart{position:absolute;top:12px;color:#ee83b2;font-size:28px;letter-spacing:16px;animation:float 2.5s infinite}
+.welcome-shadow{position:absolute;width:100px;height:16px;border-radius:50%;background:#dc9ebf66;bottom:14px;animation:welcomeShadow 1.25s ease-in-out infinite}
+@keyframes welcomeHop{0%,100%{transform:translateY(5px) scale(1,.97)}40%{transform:translateY(-34px) scale(.98,1.03)}65%{transform:translateY(-18px)}}
+@keyframes welcomeShadow{0%,100%{transform:scale(1);opacity:.6}40%{transform:scale(.65);opacity:.25}}
+.welcome-rules{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:5px 0 16px;text-align:left}
+.welcome-rule{display:flex;align-items:flex-start;gap:10px;background:#ffffffc9;border:1px solid #ffd2e6;border-radius:19px;padding:14px}
+.welcome-rule>span{font-size:27px}
+.welcome-rule p{margin:0}
+.welcome-rule strong{display:block;font-size:14px;color:#c75e96}
+.welcome-rule small{display:block;font-size:12px;color:#a77997;line-height:1.5;margin-top:3px}
+.welcome-note{font-size:12px;color:#a46e8c;line-height:1.5;margin:12px 0 20px}
+.welcome-ready{padding:16px 34px;border-radius:24px;font-size:17px}
+@media(max-width:540px){.welcome-card{padding:23px 16px 27px}.welcome-rules{grid-template-columns:1fr}.welcome-bunny-area{height:235px}.welcome-sparkles{letter-spacing:9px}}
+@media(prefers-reduced-motion:reduce){.welcome-bunny-area .bunny,.welcome-shadow,.welcome-heart{animation:none}}
