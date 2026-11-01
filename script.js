@@ -54,7 +54,7 @@ $("signupBtn").onclick=async()=>{
  if(!db)return status("Set up Supabase first ♡");
  if(!$("authForm").reportValidity())return;
  status("Creating your account...");
- const {data:result,error}=await db.auth.signUp({email:$("email").value.trim(),password:$("password").value});
+ const {data:result,error}=await db.auth.signUp({email:$("email").value.trim(),password:$("password").value,options:{emailRedirectTo:"https://rianamalhotra.github.io/StudyBunny/"}});
  status(error?error.message:result.session?"Welcome to StudyBunny! 🐰":"Check your email to confirm your account 💌");
 };
 $("logoutBtn").onclick=async()=>{stop();if(db)await db.auth.signOut();await showUser(null);status("Logged out ♡")};
